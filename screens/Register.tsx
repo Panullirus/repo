@@ -54,7 +54,6 @@ const Register = ({ navigation }) => {
             //Si la petición es correcta, redirige para confirmar el código de confirmación
             navigation.navigate('Confirmación')
         } catch (err) {
-            console.log(err)
             if(err == 'InvalidPasswordException: Password did not conform with policy: Password not long enough'){
                 Alert.alert("!Oops¡ Algo salió mal.", "La contraseña debe de ser de mínimo 8 carácteres.")
             } else if (err == 'InvalidPasswordException: Password did not conform with policy: Password must have uppercase characters'){

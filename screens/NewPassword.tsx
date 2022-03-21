@@ -48,7 +48,6 @@ const NewPassword = ({ navigation }) => {
             //Si la peticion es correcta, redirige al login
             navigation.navigate('Login')
         } catch(err) {
-            console.log(err)
             //Si la petición no es correcta, muestra el siguiente error
             if (err == 'CodeMismatchException: Invalid verification code provided, please try again.'){
                 Alert.alert("!Oops¡ Algo salió mal.","El código de confirmación es incorrecto.")

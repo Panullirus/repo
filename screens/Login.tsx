@@ -51,12 +51,10 @@ const Login = ({ navigation }) => {
         try {
             //Se envia la petición de auth para iniciar sesion
             await Auth.signIn(username, contrasena).then(data => {
-                console.log(data)
             })
             //Si la petición es correcta, redirige al contenido
             navigation.navigate('Main')
         } catch (err) {
-            console.log(err)
             //Muestra errores por errores de peticiones
             if (err == 'UserNotFoundException: User does not exist.') {
                 Alert.alert("!Oops¡ Algo salió mal.", "El correo electrónico no está registrado.")
