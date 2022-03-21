@@ -60,9 +60,11 @@ const Register = ({ navigation }) => {
             } else if (err == 'InvalidPasswordException: Password did not conform with policy: Password must have uppercase characters'){
                 Alert.alert("!Oops¡ Algo salió mal.", "La contraseña debe de tener mayúsculas.")
             } else if (err == 'InvalidPasswordException: Password did not conform with policy: Password must have numeric characters'){
-                Alert.alert("!Oops¡ Algo salió mal.", "La contraseña debe de números.")
+                Alert.alert("!Oops¡ Algo salió mal.", "La contraseña debe de tener números.")
             } else if (err == 'UsernameExistsException: An account with the given email already exists.'){
                 Alert.alert("!Oops¡ Algo salió mal.", "El correo electónico ya está registrado.")
+            } else{
+                Alert.alert("!Oops¡ Algo salió mal.", "Revisa tu contraseña.")
             }
         }
     }

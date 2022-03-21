@@ -72,6 +72,8 @@ const Login = ({ navigation }) => {
                         text:'Cancelar'
                     }
                 ])
+            }else{
+                Alert.alert("!Oops¡ Algo salió mal.", "Revisa tus datos he inténtalo de nuevo.")
             }
         }
     }
