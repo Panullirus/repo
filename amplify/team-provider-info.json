@@ -1,0 +1,20 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-repoauth-staging-145709-authRole",
+      "UnauthRoleArn": "arn:aws:iam::088205523511:role/amplify-repoauth-staging-145709-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::088205523511:role/amplify-repoauth-staging-145709-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-repoauth-staging-145709-deployment",
+      "UnauthRoleName": "amplify-repoauth-staging-145709-unauthRole",
+      "StackName": "amplify-repoauth-staging-145709",
+      "StackId": "arn:aws:cloudformation:us-east-1:088205523511:stack/amplify-repoauth-staging-145709/5b013f10-a539-11ec-8759-0ea41df13d65",
+      "AmplifyAppId": "dwjoay44izav9"
+    },
+    "categories": {
+      "auth": {
+        "repoauth": {}
+      }
+    }
+  }
+}
