@@ -3,6 +3,8 @@ import { View, Text, TextInput, StyleSheet, Alert, Image } from 'react-native'
 import { ButtonPrimary } from '../components/ButtonPrimary'
 import { ButtonSecondary } from "../components/ButtonSecondary";
 import { Auth } from "aws-amplify";
+import { getAlumno, listAlumnos } from "../src/graphql/queries";
+import { API, graphqlOperation } from "aws-amplify";
 
 //Agregamos navigation para la navegación entre componentes
 const Login = ({ navigation }) => {
@@ -50,8 +52,7 @@ const Login = ({ navigation }) => {
 
         try {
             //Se envia la petición de auth para iniciar sesion
-            await Auth.signIn(username, contrasena).then(data => {
-            })
+            await Auth.signIn(username, contrasena)
             //Si la petición es correcta, redirige al contenido
             navigation.navigate('Main')
         } catch (err) {

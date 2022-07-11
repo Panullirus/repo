@@ -37,7 +37,9 @@ const ConfirmCode = ({navigation}) => {
     
         try {
             //Se coloca el método que proveé Auth para confirmar el código de confirmación
-            await Auth.confirmSignUp(username, code)
+            await Auth.confirmSignUp(username, code).then(data => {
+                console.log(data)
+            })
             //Si la petición es correcta, redirige al login
             navigation.navigate('Login')
         } catch(err) {

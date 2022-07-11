@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, StyleSheet } from 'react-native'
-import { API, graphqlOperation, Auth } from "aws-amplify";
-import { listAlumnos } from "../src/graphql/queries";
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { API, graphqlOperation } from "aws-amplify";
+import { getAlumno, listAlumnos } from "../src/graphql/queries";
 import { createAlumno } from "../src/graphql/mutations";
+import { CreateAlumnoInput } from "../src/API";
 
 const Home = ({navigation}) => {
 
@@ -11,7 +12,8 @@ const Home = ({navigation}) => {
     useEffect(() => {
         const fetchAlumnos = async () => {
             try{
-                const result = await API.graphql(graphqlOperation(listAlumnos));
+                const result = await API.graphql(graphqlOperation(getAlumno, { id: "1" }));
+                console.log(result)
                 setAlumnos(result.data.listAlumnos.items);
             }catch(e){
                 console.log(e)
@@ -43,6 +45,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    button: {
+        backgroundColor: '#00a680',
+        padding: 10,
+        margin: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#fff'
+    }
 });
 
 export default Home
