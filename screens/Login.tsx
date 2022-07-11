@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, StyleSheet, Alert, Image } from 'react-native'
-import { Auth } from 'aws-amplify'
 import { ButtonPrimary } from '../components/ButtonPrimary'
 import { ButtonSecondary } from "../components/ButtonSecondary";
+import { Auth } from "aws-amplify";
 
 //Agregamos navigation para la navegación entre componentes
 const Login = ({ navigation }) => {

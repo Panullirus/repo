@@ -1,0 +1,6 @@
+type Alumno @model @auth(rules: [{allow: public}]){
+    id: ID!
+    nombre: String!
+    apellido_paterno: String!
+    apellido_materno: String!
+}
