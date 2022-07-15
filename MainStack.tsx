@@ -6,6 +6,7 @@ import Register from './screens/Register'
 import ConfirmCode from './screens/ConfirmCode';
 import ChangePassword from './screens/ChangePassword';
 import NewPassword from './screens/NewPassword';
+import ListContacts from './screens/ListContacts';
 import Home from './screens/Home';
 import Main from './screens/Main'
 const Stack = createNativeStackNavigator();
@@ -46,6 +47,11 @@ const MainStack = () => {
           name='Nueva contraseña'
           options={{headerShown: false}}
           component={NewPassword}
+        />
+        <Stack.Screen
+          name='Lista de contactos'
+          options={{headerShown: true}}
+          component={ListContacts}
         />
       </Stack.Navigator>
     </NavigationContainer>

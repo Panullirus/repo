@@ -1,6 +1,19 @@
-type Alumno @model @auth(rules: [{allow: public}]){
-    id: ID!
-    nombre: String!
-    apellido_paterno: String!
-    apellido_materno: String!
+type User @model @auth(rules: [{allow: public}]){
+  id: ID!
+  name: String!
+  image_url: String!
+  ChatRoomUser: [ChatRoomUser] @hasMany(indexName: "byUser", fields: ["id"])
+}
+
+type ChatRoom @model @auth(rules: [{allow: public}]){
+  id: ID!
+  chatRoomUsers: [ChatRoomUser] @hasMany(indexName: "byChatRoom", fields: ["id"])
+}
+
+type ChatRoomUser @model @auth(rules: [{allow: public}]) {
+  id: ID! @primaryKey
+  userID: ID! @index(name: "byUser")
+  chatRoomID: ID! @index(name: "byChatRoom")
+  user: User @belongsTo
+  chatRoom: ChatRoom @belongsTo
 }

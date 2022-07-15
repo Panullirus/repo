@@ -3,9 +3,6 @@ import { View, Alert, Text, TextInput, StyleSheet, ActivityIndicator } from 'rea
 import { Auth } from 'aws-amplify'
 import { ButtonPrimary } from "../components/ButtonPrimary";
 import { ButtonSecondary } from "../components/ButtonSecondary";
-import { API, graphqlOperation } from "aws-amplify";
-import { createAlumno } from "../src/graphql/mutations";
-import { CreateAlumnoInput } from "../src/API";
 
 //Agregamos navigation para la navegación entre componentes
 const Register = ({ navigation }) => {
@@ -57,25 +54,8 @@ const Register = ({ navigation }) => {
                     name: name
                 }
             }).then(data => {
-                const alumno: CreateAlumnoInput = {
-                    id: data.userSub,
-                    nombre: name,
-                    apellido_paterno: 'Gonzalez',
-                    apellido_materno: 'Torres',
-                }
-
-                useEffect(() => {
-                    const fetchAlumnos = async () => {
-                        try{
-                            const result = await API.graphql(graphqlOperation(createAlumno, { input: alumno }));
-                            console.log(result)
-                        }catch(e){
-                            console.log(e)
-                        }
-                    }
-                    fetchAlumnos();
-                }, []);
                 console.log(data)
+                setAlumnos(data);
             })
             //Si la petición es correcta, redirige para confirmar el código de confirmación
             navigation.navigate('Confirmación')
