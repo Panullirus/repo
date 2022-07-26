@@ -9,6 +9,7 @@ import NewPassword from './screens/NewPassword';
 import ListContacts from './screens/ListContacts';
 import Home from './screens/Home';
 import Main from './screens/Main'
+import ChatRoom from './screens/ChatRoom'
 const Stack = createNativeStackNavigator();
 
 //Stack de la navegación
@@ -52,6 +53,11 @@ const MainStack = () => {
           name='Lista de contactos'
           options={{headerShown: true}}
           component={ListContacts}
+        />
+        <Stack.Screen
+          name='ChatRoomUser'
+          options={{headerShown: true}}
+          component={ChatRoom}
         />
       </Stack.Navigator>
     </NavigationContainer>

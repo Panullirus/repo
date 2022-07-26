@@ -1,19 +1,27 @@
-type User @model @auth(rules: [{allow: public}]){
+type MessageContent @model @auth(rules: [{allow: public}]) {
   id: ID!
-  name: String!
-  image_url: String!
-  ChatRoomUser: [ChatRoomUser] @hasMany(indexName: "byUser", fields: ["id"])
+  content: String
+  messageroomID: ID! @index(name: "byMessageRoom")
+  user_from: ID!
 }
 
-type ChatRoom @model @auth(rules: [{allow: public}]){
+type MessageRoom @model @auth(rules: [{allow: public}]) {
   id: ID!
-  chatRoomUsers: [ChatRoomUser] @hasMany(indexName: "byChatRoom", fields: ["id"])
+  chatscontainerID: ID! @index(name: "byChatsContainer")
+  user_to: ID! @index(name: "byUser")
+  user_from: ID! @index(name: "byUserFrom")
+  MessageContents: [MessageContent] @hasMany(indexName: "byMessageRoom", fields: ["id"])
 }
 
-type ChatRoomUser @model @auth(rules: [{allow: public}]) {
-  id: ID! @primaryKey
-  userID: ID! @index(name: "byUser")
-  chatRoomID: ID! @index(name: "byChatRoom")
-  user: User @belongsTo
-  chatRoom: ChatRoom @belongsTo
+type ChatsContainer @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  MessageRoomsID: [MessageRoom] @hasMany(indexName: "byChatsContainer", fields: ["id"])
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String
+  image_uri: String
+  chatUserContainerID: ChatsContainer @hasOne
+  MessageRoomsID: [MessageRoom] @hasMany(indexName: "byUser", fields: ["id"])
 }

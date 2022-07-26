@@ -1,46 +1,85 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { API, graphqlOperation, Auth } from "aws-amplify";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getUser } from "../src/graphql/queries";
-import { CreateUserInput, GetUserQuery } from "../src/API";
-import { createUser } from "../src/graphql/mutations";
+import { getChatsContainer, getMessageRoom, getUser, listMessageRooms, listUsers } from "../src/graphql/queries";
+import { createMessageRoom, createUser } from "../src/graphql/mutations";
+import { GetUserQuery } from "../src/API";
+import { AntDesign } from '@expo/vector-icons';
+import CardMessage from "../components/CardMessage";
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
+
+    const currentUserID = "f4be4491-3919-4552-a07d-6465c0fcd386"
+
+    // const [messagesTo, setMessagesTo] = useState([])
+    // const [messagesFrom, setMessagesFrom] = useState([])
+    const [messageList, setMessageList] = useState([])
+    let arr = [] as any;
+
     useEffect(() => {
-        const fetchUser = async () => {
-            const userInfo = await Auth.currentAuthenticatedUser({bypassCache: true})
-            //console.log(userInfo)
-            if(userInfo){
-                const userData = (await API.graphql(graphqlOperation(getUser, {id: userInfo.attributes.sub})) as { data: GetUserQuery})
-                if(userData?.data?.getUser){
-                    console.log('User already exists')
-                    return;
-                }
-            
-                const input: CreateUserInput = {
-                    id: userInfo.attributes.sub,
-                    name: userInfo.attributes.name,
-                    image_url: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bGVuc3xlbnwwfHwwfHw%3D&w=1000&q=80'
-                }
-
-                console.log(input)
-
-                const res = await API.graphql(graphqlOperation(createUser, {input}))
-                console.log(res)
+        const fetchData = async () => {
+            try {
+                const getUserFrom = (await API.graphql(graphqlOperation(listMessageRooms, { filter: { user_from: {contains: currentUserID}} }))) as any;
+                const getUserTo = (await API.graphql(graphqlOperation(listMessageRooms, { filter: { user_to: {contains: currentUserID}} }))) as any;
+                arr = [...getUserFrom.data.listMessageRooms.items, ...getUserTo.data.listMessageRooms.items];
+                setMessageList(arr);
+                //console.log(messageList)
+            } catch (error) {
+                console.log(error);
             }
         }
-        fetchUser();
-    }, []);
+        fetchData();
+    }, [])
+
+    function getValue(userValue: any){
+        console.log(userValue);
+    }
+
+    const goToChatroom = async (userValue: any) => {
+        //console.log(userValue.user_to)
+        // console.log({
+        //     user_from: userValue.user_from,
+        //     user_to: userValue.user_to,
+
+        // })
+        try {
+            //se obtiene la informacion del usuario actual
+            const getUserMessage = (await API.graphql(graphqlOperation(getUser, {id: currentUserID}))) as any;
+            const checkChatRoom = (await API.graphql(graphqlOperation(listMessageRooms, {filter: {user_to: {contains: userValue.user_to}, user_from: {contains: userValue.user_from},chatscontainerID: {contains: userValue.chatscontainerID}}}))) as any;
+            
+            if (checkChatRoom.data.listMessageRooms.items.length === 0) {   
+                (await API.graphql(graphqlOperation(createMessageRoom, {input: {chatscontainerID: userValue.userChatUserContainerIDId, user_to: userValue.id ,user_from: getUserMessage.data.getUser.id}}))) as any;
+                console.log("no existe el chat room, creando...");
+                navigation.navigate("ChatRoomUser", {param: userValue});
+            }else{
+                console.log("ya existe el chat room");
+                //console.log(userValue)
+                navigation.navigate("ChatRoomUser", {userValue});
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.navigate('Lista de contactos')}>
-                <Text>Lista de contactos</Text>
+            <Text>Lista de mensajes</Text>
+            {
+                messageList.map((item, index) => {
+                    return(
+                        <CardMessage
+                            key={index}
+                            onPress={() => goToChatroom(item)}
+                            text={item.id}
+                        />
+                    );
+                })
+            }
+            <TouchableOpacity style={styles.floatingButtom} onPress={() => navigation.navigate("Lista de contactos")}>
+                <Text>Add</Text>
             </TouchableOpacity>
         </View>
     );
-
 }
 
 const styles = StyleSheet.create({
@@ -52,13 +91,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    button: {
-        backgroundColor: '#00a680',
-        padding: 10,
-        margin: 10,
-        borderRadius: 10,
-        borderWidth: 1,
-        borderColor: '#fff'
+    floatingButtom: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#ee6e73',
+        position: 'absolute',
+        bottom: 10,
+        right: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+
     }
 });
 

@@ -1,25 +1,23 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native'
 
-export default function CardContact(props) {
+export default function CardContacts(props) {
 
-    const { onPress, text, image } = props
+    const { onPress, text, image, key } = props
 
     return (
         <View style={styles.card}>
-            <View>
-                <TouchableOpacity style={styles.rowsContainer} onPress={onPress}>
-                    <Image
-                        style={styles.imageCard}
-                        source={{
-                            uri: `${image}`,
-                        }}
-                    />
-                    <Text>
-                        {text}
-                    </Text>
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.rowsContainer} onPress={onPress} key={key}>
+                <Image
+                    style={styles.imageCard}
+                    source={{
+                        uri: `${image}`,
+                    }}
+                />
+                <Text>
+                    {text}
+                </Text>
+            </TouchableOpacity>
         </View>
     );
 
@@ -27,7 +25,7 @@ export default function CardContact(props) {
 
 const styles = StyleSheet.create({
     card: {
-        width: '70%',
+        width: '50%',
         backgroundColor: '#fff',
         padding: 10,
         margin: 10,
@@ -48,7 +46,8 @@ const styles = StyleSheet.create({
     imageCard: {
         height: 50,
         width: 50,
-        marginRight: 50
+        marginRight: 50,
+        borderRadius: 20
     },
     rowsContainer: {
         flexDirection: 'row',
