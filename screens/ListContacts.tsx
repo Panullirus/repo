@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getUser, listMessageRooms, listUsers } from "../src/graphql/queries";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import CardContacts from "../components/CardContacts";
 import { createMessageRoom } from "../src/graphql/mutations";
 import React from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 export default function ListContacts({ navigation }) {
 
@@ -32,7 +32,7 @@ export default function ListContacts({ navigation }) {
         }
     }
 
-    useEffect(() => {
+    useFocusEffect(useCallback( () => {
         const fetchListContacts = async () => {
             try {
                 const getUser = (await API.graphql(graphqlOperation(listUsers))) as any;
@@ -42,7 +42,7 @@ export default function ListContacts({ navigation }) {
             }
         }
         fetchListContacts();
-    }, [ ]);
+    }, []));
 
     const currentUserID = "f4be4491-3919-4552-a07d-6465c0fcd386"
 
@@ -50,7 +50,7 @@ export default function ListContacts({ navigation }) {
         <View style={styles.container}>
             <Text>Tus contactos:</Text>
             {
-                listContact.map((item, index) => {
+                listContact.map((item:any, index) => {
                     if (item.id !== currentUserID) {
                         return(
                             <CardContacts

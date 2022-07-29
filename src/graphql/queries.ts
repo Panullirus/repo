@@ -116,6 +116,7 @@ export const listMessageRooms = /* GraphQL */ `
             id
             content
             user_from
+            createdAt
           }
         }
         createdAt

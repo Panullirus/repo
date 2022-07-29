@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native'
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getChatsContainer, getMessageRoom, getUser, listMessageRooms, listUsers } from "../src/graphql/queries";
@@ -6,17 +6,16 @@ import { createMessageRoom, createUser } from "../src/graphql/mutations";
 import { GetUserQuery } from "../src/API";
 import { AntDesign } from '@expo/vector-icons';
 import CardMessage from "../components/CardMessage";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Home = ({ navigation }) => {
 
     const currentUserID = "f4be4491-3919-4552-a07d-6465c0fcd386"
-
-    // const [messagesTo, setMessagesTo] = useState([])
-    // const [messagesFrom, setMessagesFrom] = useState([])
+    
     const [messageList, setMessageList] = useState([])
     let arr = [] as any;
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
         const fetchData = async () => {
             try {
                 const getUserFrom = (await API.graphql(graphqlOperation(listMessageRooms, { filter: { user_from: {contains: currentUserID}} }))) as any;
@@ -24,24 +23,19 @@ const Home = ({ navigation }) => {
                 arr = [...getUserFrom.data.listMessageRooms.items, ...getUserTo.data.listMessageRooms.items];
                 setMessageList(arr);
                 //console.log(messageList)
+
+                return () => {
+                    getUserFrom.unsubscribe();
+                    getUserTo.unsubscribe();
+                }
             } catch (error) {
                 console.log(error);
             }
         }
         fetchData();
-    }, [])
-
-    function getValue(userValue: any){
-        console.log(userValue);
-    }
+    }, []));
 
     const goToChatroom = async (userValue: any) => {
-        //console.log(userValue.user_to)
-        // console.log({
-        //     user_from: userValue.user_from,
-        //     user_to: userValue.user_to,
-
-        // })
         try {
             //se obtiene la informacion del usuario actual
             const getUserMessage = (await API.graphql(graphqlOperation(getUser, {id: currentUserID}))) as any;
@@ -65,7 +59,7 @@ const Home = ({ navigation }) => {
         <View style={styles.container}>
             <Text>Lista de mensajes</Text>
             {
-                messageList.map((item, index) => {
+                messageList.map((item:any, index) => {
                     return(
                         <CardMessage
                             key={index}

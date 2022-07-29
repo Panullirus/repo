@@ -14,7 +14,7 @@ export default function CardContacts(props) {
                         uri: `${image}`,
                     }}
                 />
-                <Text>
+                <Text style={styles.cardText}>
                     {text}
                 </Text>
             </TouchableOpacity>
@@ -25,7 +25,7 @@ export default function CardContacts(props) {
 
 const styles = StyleSheet.create({
     card: {
-        width: '50%',
+        width: 'auto',
         backgroundColor: '#fff',
         padding: 10,
         margin: 10,
@@ -40,6 +40,12 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.36,
         shadowRadius: 6.68,
         elevation: 11,
+    },
+    cardText: {
+        fontSize: 13,
+        color: '#000',
+        marginTop: 10,
+        marginBottom: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },

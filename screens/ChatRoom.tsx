@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import {Text, View, TextInput, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import {Text, View, TextInput, StyleSheet, TouchableOpacity, ScrollView, Keyboard} from 'react-native';
 import { API, graphqlOperation } from 'aws-amplify';
 import { getMessageRoom, listMessageRooms } from '../src/graphql/queries';
 import MessageContainerFrom from '../components/MessageContainerFrom';
 import { Ionicons } from '@expo/vector-icons';
 import { createMessageContent, createMessageRoom } from '../src/graphql/mutations';
 import MessageContainerTo from '../components/MessageContainerTo';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { CreateMessageContentInput } from '../src/API';
+import { onCreateMessageContent, onCreateMessageRoom } from '../src/graphql/subscriptions';
 
 export default function ChatRoom() {
 
@@ -14,13 +16,11 @@ export default function ChatRoom() {
 
     const userFromListContact:any = route.params;
 
-    const [chatRoom, setChatRoom] = useState();
-
     const [messageContent, setMessageContent] = useState([]);
 
     const [message, setMessage] = useState({
         content: ""
-    }); 
+    });
 
     const getMessageData = (content: any, value: any) => {
         setMessage({...message, [content]: value})
@@ -28,16 +28,30 @@ export default function ChatRoom() {
 
     const userID: string = "f4be4491-3919-4552-a07d-6465c0fcd386";
 
-    // luis => const userID: string = "9c1c9c77-826e-4026-9405-76eb5119edb9";
+    useFocusEffect(useCallback(() => {
+        // @ts-ignore
+        const subscriptionData = API.graphql(graphqlOperation(onCreateMessageContent)).subscribe({
+            next: (eventData: any) => {
+                //console.log(eventData.value.data.onCreateMessageContent);
+                const newMessage = eventData.value.data.onCreateMessageContent;
+                console.log({newMessage, messageContent});
+                // @ts-ignore
+                setMessageContent((oldMessages) => [...oldMessages, newMessage]);
+                console.log(messageContent);
+            }
+        })
 
-    useEffect(() => {
+        return () => subscriptionData.unsubscribe();
+    }, []));
+
+    useFocusEffect(useCallback(() => {
         const fetchData = async () => {
-            //console.log("From chat room", userFromListContact.userValue.MessageContents);
             try {
                 if(userFromListContact.userValue.MessageContents == undefined){
                     const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, {filter: {chatscontainerID: {contains: userFromListContact.userValue.userChatUserContainerIDId}, user_from: {contains: userID}, user_to: {contains: userFromListContact.userValue.id}}}))) as any;
-                    setChatRoom(getMessageList.data.listMessageRooms.items[0].id);
                     setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
+                    
+                    console.log(messageContent);
                 }else{
                     setMessageContent(userFromListContact.userValue.MessageContents.items);
                 }
@@ -46,48 +60,55 @@ export default function ChatRoom() {
             }
         }
         fetchData();
-    }, []);
+    }, [])); 
 
-    async function sendMessageFunction(){
-        const input = {
-            messageroomID: chatRoom,
+    const sendMessageFunction = useCallback( async () => {
+        const input: CreateMessageContentInput = {
+            messageroomID: userFromListContact.userValue.id,
             user_from: userID,
             content: message.content,
         }
         try {
-            const sendMessage = (await API.graphql(graphqlOperation(createMessageContent, {input: input}))) as any;
-            if (sendMessage) {
-                console.log("mensaje enviado");
-            }
+            (await API.graphql(graphqlOperation(createMessageContent, {input: input}))) as any;
         } catch (error) {
             console.log(error);
         }
+    },[message]);
+
+    async function onSubmmit(){
+        await sendMessageFunction();
+        setMessage({...message, content: ""});
+        Keyboard.dismiss();
     }
+
+    const sortMessages = messageContent.sort(function (a: any, b: any){
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+    })
 
     return(
         <View style={styles.containerMain}>
             <ScrollView>
             {
-                
-                messageContent.map((message, index) => {
+                sortMessages.map((message: any) => {
                     if(message.user_from === userID){
                          return(
-                             <MessageContainerFrom key={index} messageContent={message.content}/>
+                             <MessageContainerFrom key={message.id} messageContent={message.content}/>
                          )
                      }if(message.user_from !== userID){
                          return(
-                             <MessageContainerTo key={index} messageContent={message.content}/>
+                             <MessageContainerTo key={message.id} messageContent={message.content}/>
                          )
                      }
                  })
             }
             </ScrollView>
-            <TextInput 
+            <TextInput
+                value={message.content}
                 style={styles.bottomView}
                 onChangeText={(value) => getMessageData("content", value)}
                 />
             <TouchableOpacity
-                onPress={() => sendMessageFunction()}
+                onPress={onSubmmit}
             >
                 <Ionicons name="send" size={24} color="black" />
             </TouchableOpacity>
@@ -107,7 +128,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#EE5407',
         justifyContent: 'center',
         alignItems: 'center',
-        position: 'relative', //Here is the trick
-        bottom: 0, //Here is the trick
+        position: 'relative',
+        bottom: 0,
       },
 })

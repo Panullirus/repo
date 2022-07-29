@@ -16,7 +16,7 @@ const Home = ({navigation}) => {
             <View style={styles.buttonPrimary}>
                 <ButtonPrimary
                 text='Iniciar sesión'
-                onPress={()=> navigation.navigate('Login')}
+                onPress={()=> navigation.navigate('Main')}
                 />
             </View>
             <View style={styles.buttonSecondary}>
