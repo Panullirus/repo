@@ -6,10 +6,10 @@ import Register from './screens/Register'
 import ConfirmCode from './screens/ConfirmCode';
 import ChangePassword from './screens/ChangePassword';
 import NewPassword from './screens/NewPassword';
-import ListContacts from './screens/ListContacts';
 import Home from './screens/Home';
 import Main from './screens/Main'
-import ChatRoom from './screens/ChatRoom'
+import { ListContacts, ChatRoom } from './screens/Chats';
+
 const Stack = createNativeStackNavigator();
 
 //Stack de la navegación
@@ -17,21 +17,21 @@ const MainStack = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-      <Stack.Screen
+        <Stack.Screen
           name='Home'
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
           component={Home}
         />
         <Stack.Screen
           name='Main'
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
           component={Main}
         />
-      <Stack.Screen
+        <Stack.Screen
           name='Login'
           component={Login}
         />
-      <Stack.Screen
+        <Stack.Screen
           name='Confirmación'
           component={ConfirmCode}
         />
@@ -41,22 +41,22 @@ const MainStack = () => {
         />
         <Stack.Screen
           name='Cambiar contraseña'
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
           component={ChangePassword}
         />
         <Stack.Screen
           name='Nueva contraseña'
-          options={{headerShown: false}}
+          options={{ headerShown: false }}
           component={NewPassword}
         />
         <Stack.Screen
           name='Lista de contactos'
-          options={{headerShown: true}}
+          options={{ headerShown: true }}
           component={ListContacts}
         />
         <Stack.Screen
           name='ChatRoomUser'
-          options={{headerShown: true}}
+          options={{ headerShown: true }}
           component={ChatRoom}
         />
       </Stack.Navigator>
