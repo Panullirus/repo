@@ -26,7 +26,8 @@ export function ChatRoom() {
         setMessage({ ...message, [content]: value })
     }
 
-    const userID: string = "f4be4491-3919-4552-a07d-6465c0fcd386";
+    const currentUserID: string = "f4be4491-3919-4552-a07d-6465c0fcd386";
+    //const currentUserID = "9c1c9c77-826e-4026-9405-76eb5119edb9"
 
     useFocusEffect(useCallback(() => {
         // @ts-ignore
@@ -48,7 +49,7 @@ export function ChatRoom() {
         const fetchData = async () => {
             try {
                 if (userFromListContact.userValue.MessageContents == undefined) {
-                    const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter: { chatscontainerID: { contains: userFromListContact.userValue.userChatUserContainerIDId }, user_from: { contains: userID }, user_to: { contains: userFromListContact.userValue.id } } }))) as any;
+                    const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter: { chatscontainerID: { contains: userFromListContact.userValue.userChatUserContainerIDId }, user_from: { contains: currentUserID }, user_to: { contains: userFromListContact.userValue.id } } }))) as any;
                     setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
 
                     console.log(messageContent);
@@ -65,7 +66,7 @@ export function ChatRoom() {
     const sendMessageFunction = useCallback(async () => {
         const input: CreateMessageContentInput = {
             messageroomID: userFromListContact.userValue.id,
-            user_from: userID,
+            user_from: currentUserID,
             content: message.content,
         }
         try {
@@ -90,11 +91,11 @@ export function ChatRoom() {
             <ScrollView>
                 {
                     sortMessages.map((message: any) => {
-                        if (message.user_from === userID) {
+                        if (message.user_from === currentUserID) {
                             return (
                                 <MessageContainerFrom key={message.id} messageContent={message.content} />
                             )
-                        } if (message.user_from !== userID) {
+                        } if (message.user_from !== currentUserID) {
                             return (
                                 <MessageContainerTo key={message.id} messageContent={message.content} />
                             )

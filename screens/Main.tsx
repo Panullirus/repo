@@ -8,9 +8,11 @@ import { AntDesign } from '@expo/vector-icons';
 import CardMessage from "../components/CardMessage";
 import { useFocusEffect } from "@react-navigation/native";
 
+// @ts-ignore
 const Home = ({ navigation }) => {
 
-    const currentUserID = "f4be4491-3919-4552-a07d-6465c0fcd386"
+    //const currentUserID = "f4be4491-3919-4552-a07d-6465c0fcd386"
+    const currentUserID = "9c1c9c77-826e-4026-9405-76eb5119edb9"
     
     const [messageList, setMessageList] = useState([])
     let arr = [] as any;

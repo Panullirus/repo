@@ -39,7 +39,6 @@ export class ChatKit {
 			navigation.navigate("ChatRoomUser", { param: props.userValue })
 		} else {
 			console.log("ya existe el chat room")
-			console.log(props.userValue.MessageRoomsID)
 			navigation.navigate("ChatRoomUser", { userValue: props.userValue })
 		}
 	}
