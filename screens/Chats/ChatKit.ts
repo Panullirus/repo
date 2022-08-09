@@ -27,7 +27,7 @@ export class ChatKit {
 			return
 		}
 
-		const chatRooms = await this.checkChatRoom({ ...props, userID: userFromID })
+		const chatRooms: any = await this.checkChatRoom({ ...props, userID: userFromID })
 
 		if (chatRooms?.length === 0) {
 			await this.createMessageRoom({
@@ -36,9 +36,10 @@ export class ChatKit {
 				userFromID,
 			})
 
+			console.log("no existe chatroom, creando...")
 			navigation.navigate("ChatRoomUser", { param: props.userValue })
 		} else {
-			console.log("ya existe el chat room")
+			console.log("Chatroom existe")
 			navigation.navigate("ChatRoomUser", { userValue: props.userValue })
 		}
 	}
@@ -73,11 +74,13 @@ export class ChatKit {
 	private async checkChatRoom(
 		props: CheckChatRoomProps
 	): Promise<MessageRoom[] | null> {
+
 		const filter = {
-			user_to: { contains: props.userID },
+			user_to: { contains: props.userValue.id },
 			user_from: { contains: props.currentUserID },
 			chatscontainerID: { contains: props.userValue.userChatUserContainerIDId },
 		}
+
 		try {
 			const checkChatRoom = (await API.graphql(
 				graphqlOperation(listMessageRooms, { filter })

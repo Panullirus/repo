@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, Alert, Text, TextInput, StyleSheet, ActivityIndicator } from 'react-native'
-import { Auth } from 'aws-amplify'
+import { Auth, API, graphqlOperation } from 'aws-amplify'
 import { ButtonPrimary } from "../components/ButtonPrimary";
 import { ButtonSecondary } from "../components/ButtonSecondary";
+import { createChatsContainer, createUser } from "@src/graphql/mutations";
+import { CreateUserInput } from "@src/API";
 
 //Agregamos navigation para la navegación entre componentes
 const Register = ({ navigation }) => {
@@ -47,16 +49,26 @@ const Register = ({ navigation }) => {
 
         try {
             //Se hace la petición con los datos esperados
-            await Auth.signUp({
+            const userData = await Auth.signUp({
                 username: username,
                 password: contrasena,
                 attributes: {
                     name: name
                 }
-            }).then(data => {
-                console.log(data)
-                setAlumnos(data);
             })
+
+            const setChatContainer = (await API.graphql(graphqlOperation(createChatsContainer, {input: {}}))) as any
+
+            const input:CreateUserInput = {
+                id: userData.userSub,
+                userChatUserContainerIDId: setChatContainer.data.createChatsContainer.id,
+                name: name
+            }
+
+            const createChatUser = await API.graphql(graphqlOperation(createUser, {input}))
+
+            console.log(createChatUser)
+
             //Si la petición es correcta, redirige para confirmar el código de confirmación
             navigation.navigate('Confirmación')
         } catch (err) {
@@ -69,7 +81,7 @@ const Register = ({ navigation }) => {
             } else if (err == 'UsernameExistsException: An account with the given email already exists.'){
                 Alert.alert("!Oops¡ Algo salió mal.", "El correo electónico ya está registrado.")
             } else{
-                Alert.alert("!Oops¡ Algo salió mal.", "Revisa tu contraseña.")
+                console.log(err)
             }
         }
     }

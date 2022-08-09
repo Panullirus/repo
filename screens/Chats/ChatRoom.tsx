@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Text, View, TextInput, StyleSheet, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
-import { API, graphqlOperation } from 'aws-amplify';
+import { API, Auth, graphqlOperation } from 'aws-amplify';
 import { getMessageRoom, listMessageRooms } from '../../src/graphql/queries';
 import MessageContainerFrom from '../../components/MessageContainerFrom';
 import { Ionicons } from '@expo/vector-icons';
 import { createMessageContent, createMessageRoom } from '../../src/graphql/mutations';
 import MessageContainerTo from '../../components/MessageContainerTo';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { CreateMessageContentInput } from '../../src/API';
+import { CreateMessageContentInput, ListMessageRoomsQuery } from '../../src/API';
 import { onCreateMessageContent, onCreateMessageRoom } from '../../src/graphql/subscriptions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function ChatRoom() {
 
@@ -18,6 +19,20 @@ export function ChatRoom() {
 
     const [messageContent, setMessageContent] = useState([]);
 
+    const [currentUserID, setCurrentUserID] = useState<any>([]);
+
+    useFocusEffect(useCallback(() => {
+        const getUserFromLocalStorage = async () => {
+            const userID = await AsyncStorage.getItem('@Storage_key')
+            console.log(userID)
+            setCurrentUserID(userID);  
+        }
+
+        getUserFromLocalStorage()
+    }, []));
+
+    const [chatRoom, setChatRoom] = useState("");
+
     const [message, setMessage] = useState({
         content: ""
     });
@@ -26,16 +41,13 @@ export function ChatRoom() {
         setMessage({ ...message, [content]: value })
     }
 
-    const currentUserID: string = "f4be4491-3919-4552-a07d-6465c0fcd386";
-    //const currentUserID = "9c1c9c77-826e-4026-9405-76eb5119edb9"
-
     useFocusEffect(useCallback(() => {
         // @ts-ignore
         const subscriptionData = API.graphql(graphqlOperation(onCreateMessageContent)).subscribe({
             next: (eventData: any) => {
                 //console.log(eventData.value.data.onCreateMessageContent);
                 const newMessage = eventData.value.data.onCreateMessageContent;
-                console.log({ newMessage, messageContent });
+
                 // @ts-ignore
                 setMessageContent((oldMessages) => [...oldMessages, newMessage]);
                 console.log(messageContent);
@@ -48,27 +60,50 @@ export function ChatRoom() {
     useFocusEffect(useCallback(() => {
         const fetchData = async () => {
             try {
-                if (userFromListContact.userValue.MessageContents == undefined) {
-                    const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter: { chatscontainerID: { contains: userFromListContact.userValue.userChatUserContainerIDId }, user_from: { contains: currentUserID }, user_to: { contains: userFromListContact.userValue.id } } }))) as any;
-                    setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
+                const getCurrentUser = (await Auth.currentAuthenticatedUser()) as any;
 
-                    console.log(messageContent);
+                const filter = {
+                    // ChatRoom: { 
+                    //     contains: "2263c2a1-3411-48f8-a557-11362c41df69" 
+                    // },
+                    user_from: { 
+                        contains: getCurrentUser.attributes.sub
+                    },
+                    user_to: { 
+                        contains: userFromListContact.userValue.id 
+                    }
+                }
+
+                console.log(filter);
+
+                if (userFromListContact.userValue.MessageContents == undefined) {
+                    const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter }))) as any;
+                    console.log(getMessageList);
+                    setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
+                    setChatRoom(getMessageList);
                 } else {
                     setMessageContent(userFromListContact.userValue.MessageContents.items);
                 }
             } catch (error) {
-                console.log(error);
+                console.log("error desde acá => ", error);
             }
         }
         fetchData();
     }, []));
 
     const sendMessageFunction = useCallback(async () => {
+
+        const getCurrentUser = (await Auth.currentAuthenticatedUser()) as any;
+
         const input: CreateMessageContentInput = {
-            messageroomID: userFromListContact.userValue.id,
-            user_from: currentUserID,
+            // @ts-ignore
+            messageroomID: chatRoom.data.listMessageRooms.items[0].id,
+            user_from: getCurrentUser.attributes.sub,
             content: message.content,
         }
+
+        console.log(input);
+
         try {
             (await API.graphql(graphqlOperation(createMessageContent, { input: input }))) as any;
         } catch (error) {

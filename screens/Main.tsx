@@ -3,16 +3,25 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { API, graphqlOperation, Auth } from "aws-amplify";
 import { getChatsContainer, getMessageRoom, getUser, listMessageRooms, listUsers } from "../src/graphql/queries";
 import { createMessageRoom, createUser } from "../src/graphql/mutations";
-import { GetUserQuery } from "../src/API";
-import { AntDesign } from '@expo/vector-icons';
 import CardMessage from "../components/CardMessage";
 import { useFocusEffect } from "@react-navigation/native";
 
 // @ts-ignore
 const Home = ({ navigation }) => {
 
-    //const currentUserID = "f4be4491-3919-4552-a07d-6465c0fcd386"
-    const currentUserID = "9c1c9c77-826e-4026-9405-76eb5119edb9"
+    const [currentUserID, setCurrentUserID] = useState<any>();
+
+    useFocusEffect(useCallback(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const getCurrentUser = (await Auth.currentAuthenticatedUser()) as any;
+                setCurrentUserID(getCurrentUser);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchCurrentUser();
+    }, []));
     
     const [messageList, setMessageList] = useState([])
     let arr = [] as any;
@@ -24,7 +33,7 @@ const Home = ({ navigation }) => {
                 const getUserTo = (await API.graphql(graphqlOperation(listMessageRooms, { filter: { user_to: {contains: currentUserID}} }))) as any;
                 arr = [...getUserFrom.data.listMessageRooms.items, ...getUserTo.data.listMessageRooms.items];
                 setMessageList(arr);
-                //console.log(messageList)
+                console.log(messageList)
 
                 return () => {
                     getUserFrom.unsubscribe();
@@ -49,7 +58,7 @@ const Home = ({ navigation }) => {
                 navigation.navigate("ChatRoomUser", {param: userValue});
             }else{
                 console.log("ya existe el chat room");
-                //console.log(userValue)
+                console.log(userValue)
                 navigation.navigate("ChatRoomUser", {userValue});
             }
         } catch (error) {
@@ -58,7 +67,8 @@ const Home = ({ navigation }) => {
     }
 
     return (
-        <View style={styles.container}>
+        <View>
+            <View style={styles.container}>
             <Text>Lista de mensajes</Text>
             {
                 messageList.map((item:any, index) => {
@@ -74,6 +84,7 @@ const Home = ({ navigation }) => {
             <TouchableOpacity style={styles.floatingButtom} onPress={() => navigation.navigate("Lista de contactos")}>
                 <Text>Add</Text>
             </TouchableOpacity>
+        </View>
         </View>
     );
 }

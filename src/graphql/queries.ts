@@ -306,6 +306,18 @@ export const listUsers = /* GraphQL */ `
           _lastChangedAt
         }
         MessageRoomsID {
+          items{
+            id
+            chatscontainerID
+              MessageContents{
+                items{
+                  id
+                  content
+                  user_from
+                  messageroomID
+                }
+              }
+            }
           nextToken
           startedAt
         }

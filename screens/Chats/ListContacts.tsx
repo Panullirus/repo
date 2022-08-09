@@ -13,10 +13,21 @@ const chatKit = new ChatKit()
 // @ts-ignore
 export function ListContacts({ navigation }) {
 
-    const [listContact, setListContact] = useState([]);
-    //const currentUserID = "f4be4491-3919-4552-a07d-6465c0fcd386"
-    const currentUserID = "9c1c9c77-826e-4026-9405-76eb5119edb9"
+    const [currentUserID, setCurrentUserID] = useState<any>();
 
+    useFocusEffect(useCallback(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                const getCurrentUser = (await Auth.currentAuthenticatedUser()) as any;
+                setCurrentUserID(getCurrentUser.attributes.sub);
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetchCurrentUser();
+    }, []));
+
+    const [listContact, setListContact] = useState([]);
 
     const goToChatroom = async (userValue: any) => {
         await chatKit.goToChatRoom({
