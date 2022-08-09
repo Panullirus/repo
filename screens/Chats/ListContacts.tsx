@@ -7,24 +7,21 @@ import { createMessageRoom } from "../../src/graphql/mutations";
 import React from "react";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { ChatKit } from "./ChatKit";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const chatKit = new ChatKit()
 
 // @ts-ignore
 export function ListContacts({ navigation }) {
 
-    const [currentUserID, setCurrentUserID] = useState<any>();
+    const [currentUserID, setCurrentUserID] = useState<any>("");
 
     useFocusEffect(useCallback(() => {
-        const fetchCurrentUser = async () => {
-            try {
-                const getCurrentUser = (await Auth.currentAuthenticatedUser()) as any;
-                setCurrentUserID(getCurrentUser.attributes.sub);
-            } catch (error) {
-                console.log(error);
-            }
+        const getUserFromLocalStorage = async () => {
+            const userID = await AsyncStorage.getItem('@Storage_key')
+            setCurrentUserID(userID);  
         }
-        fetchCurrentUser();
+        getUserFromLocalStorage()
     }, []));
 
     const [listContact, setListContact] = useState([]);

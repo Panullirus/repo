@@ -14,14 +14,24 @@ interface GoToChatRoomProps extends Omit<CheckChatRoomProps, "userID"> {
 }
 
 interface createMessageRoomProps {
-	chatRoomID: string
+	chatscontainerID: string
 	userFromID: string
 	userToID: string
 }
 
 export class ChatKit {
 	public async goToChatRoom({ navigation, ...props }: GoToChatRoomProps) {
+		console.log(props.userValue)
+
 		const userFromID = await this.getUserID(props.currentUserID)
+
+		console.log(
+			{
+				chatsContainerID: props.userValue.userChatUserContainerIDId!,
+				userToID: props.userValue.id,
+				userFromID,
+			}
+		)
 
 		if (!userFromID) {
 			return
@@ -31,7 +41,7 @@ export class ChatKit {
 
 		if (chatRooms?.length === 0) {
 			await this.createMessageRoom({
-				chatRoomID: props.userValue.userChatUserContainerIDId!,
+				chatscontainerID: props.userValue.userChatUserContainerIDId!,
 				userToID: props.userValue.id,
 				userFromID,
 			})
@@ -48,7 +58,7 @@ export class ChatKit {
 		props: createMessageRoomProps
 	): Promise<void> {
 		const input: CreateMessageRoomInput = {
-			chatscontainerID: props.chatRoomID,
+			chatscontainerID: props.chatscontainerID,
 			user_to: props.userToID,
 			user_from: props.userFromID,
 		}

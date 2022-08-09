@@ -67,9 +67,11 @@ export function ChatRoom() {
                     //     contains: "2263c2a1-3411-48f8-a557-11362c41df69" 
                     // },
                     user_from: { 
+                        //contains: userFromListContact.userValue.id
                         contains: getCurrentUser.attributes.sub
                     },
                     user_to: { 
+                        //contains: getCurrentUser.attributes.sub 
                         contains: userFromListContact.userValue.id 
                     }
                 }
@@ -78,9 +80,25 @@ export function ChatRoom() {
 
                 if (userFromListContact.userValue.MessageContents == undefined) {
                     const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter }))) as any;
-                    console.log(getMessageList);
-                    setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
-                    setChatRoom(getMessageList);
+                    
+                    if(getMessageList.data.listMessageRooms.items[0].MessageContents.items.length == 0) {
+                        const filter = {
+                            user_from: { 
+                                contains: userFromListContact.userValue.id,
+                             },
+                            user_to: {
+                                contains: getCurrentUser.attributes.sub
+                            }
+                        }
+
+                        const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter }))) as any;
+
+                        setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
+                        setChatRoom(getMessageList);
+                    }else{
+                        setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
+                        setChatRoom(getMessageList);
+                    }
                 } else {
                     setMessageContent(userFromListContact.userValue.MessageContents.items);
                 }
