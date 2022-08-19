@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { API, graphqlOperation, Auth } from "aws-amplify";
-import { getUser, listMessageRooms, listUsers } from "../../src/graphql/queries";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { API, graphqlOperation } from "aws-amplify";
+import { listUsers } from "../../src/graphql/queries";
+import { View, Text, StyleSheet } from "react-native";
 import CardContacts from "../../components/CardContacts";
-import { createMessageRoom } from "../../src/graphql/mutations";
 import React from "react";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { ChatKit } from "./ChatKit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -16,13 +15,13 @@ export function ListContacts({ navigation }) {
 
     const [currentUserID, setCurrentUserID] = useState<any>("");
 
-    useFocusEffect(useCallback(() => {
+    useEffect(() => {
         const getUserFromLocalStorage = async () => {
             const userID = await AsyncStorage.getItem('@Storage_key')
             setCurrentUserID(userID);  
         }
         getUserFromLocalStorage()
-    }, []));
+    }, []);
 
     const [listContact, setListContact] = useState([]);
 

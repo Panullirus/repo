@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
-import { API, Auth, graphqlOperation } from 'aws-amplify';
-import { getMessageRoom, listMessageRooms } from '../../src/graphql/queries';
+import React, { useCallback, useState } from 'react';
+import { View, TextInput, StyleSheet, TouchableOpacity, ScrollView, Keyboard } from 'react-native';
+import { API, graphqlOperation } from 'aws-amplify';
 import MessageContainerFrom from '../../components/MessageContainerFrom';
 import { Ionicons } from '@expo/vector-icons';
-import { createMessageContent, createMessageRoom } from '../../src/graphql/mutations';
 import MessageContainerTo from '../../components/MessageContainerTo';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import { CreateMessageContentInput, ListMessageRoomsQuery } from '../../src/API';
-import { onCreateMessageContent, onCreateMessageRoom } from '../../src/graphql/subscriptions';
+import { onCreateMessageContent} from '../../src/graphql/subscriptions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ChatKit } from './ChatKit';
 
 export function ChatRoom() {
+
+    const chatKit = new ChatKit()
 
     const route = useRoute();
 
@@ -25,13 +25,13 @@ export function ChatRoom() {
         const getUserFromLocalStorage = async () => {
             const userID = await AsyncStorage.getItem('@Storage_key')
             console.log(userID)
-            setCurrentUserID(userID);  
+            setCurrentUserID(userID);
         }
 
         getUserFromLocalStorage()
     }, []));
 
-    const [chatRoom, setChatRoom] = useState("");
+    const [chatRoom, setChatRoom] = useState<any>("");
 
     const [message, setMessage] = useState({
         content: ""
@@ -45,7 +45,6 @@ export function ChatRoom() {
         // @ts-ignore
         const subscriptionData = API.graphql(graphqlOperation(onCreateMessageContent)).subscribe({
             next: (eventData: any) => {
-                //console.log(eventData.value.data.onCreateMessageContent);
                 const newMessage = eventData.value.data.onCreateMessageContent;
 
                 // @ts-ignore
@@ -60,90 +59,36 @@ export function ChatRoom() {
     useFocusEffect(useCallback(() => {
         const fetchData = async () => {
             try {
-                const getCurrentUser = (await Auth.currentAuthenticatedUser()) as any;
+                const res = await chatKit.setMessages(userFromListContact)
 
-                const filter = {
-                    // ChatRoom: { 
-                    //     contains: "2263c2a1-3411-48f8-a557-11362c41df69" 
-                    // },
-                    user_from: { 
-                        //contains: userFromListContact.userValue.id
-                        contains: getCurrentUser.attributes.sub
-                    },
-                    user_to: { 
-                        //contains: getCurrentUser.attributes.sub 
-                        contains: userFromListContact.userValue.id 
-                    }
-                }
-
-                console.log(filter);
-
-                if (userFromListContact.userValue.MessageContents == undefined) {
-                    const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter }))) as any;
-                    
-                    if(getMessageList.data.listMessageRooms.items[0].MessageContents.items.length == 0) {
-                        const filter = {
-                            user_from: { 
-                                contains: userFromListContact.userValue.id,
-                             },
-                            user_to: {
-                                contains: getCurrentUser.attributes.sub
-                            }
-                        }
-
-                        const getMessageList = (await API.graphql(graphqlOperation(listMessageRooms, { filter }))) as any;
-
-                        setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
-                        setChatRoom(getMessageList);
-                    }else{
-                        setMessageContent(getMessageList.data.listMessageRooms.items[0].MessageContents.items);
-                        setChatRoom(getMessageList);
-                    }
-                } else {
-                    setMessageContent(userFromListContact.userValue.MessageContents.items);
-                }
+                setMessageContent(res);
             } catch (error) {
-                console.log("error desde acá => ", error);
+                console.log("error desde setMessages => ", error);
             }
         }
         fetchData();
     }, []));
 
     const sendMessageFunction = useCallback(async () => {
-
-        const getCurrentUser = (await Auth.currentAuthenticatedUser()) as any;
-
-        const input: CreateMessageContentInput = {
-            // @ts-ignore
-            messageroomID: chatRoom.data.listMessageRooms.items[0].id,
-            user_from: getCurrentUser.attributes.sub,
-            content: message.content,
-        }
-
-        console.log(input);
-
-        try {
-            (await API.graphql(graphqlOperation(createMessageContent, { input: input }))) as any;
-        } catch (error) {
-            console.log(error);
-        }
+        const getChatRoom = await chatKit.setChatRoom(userFromListContact)
+        await chatKit.sendMessage(getChatRoom.data.listMessageRooms.items[0].id, message.content);
     }, [message]);
 
     async function onSubmmit() {
-        await sendMessageFunction();
-        setMessage({ ...message, content: "" });
-        Keyboard.dismiss();
+        try {
+            await sendMessageFunction();
+            setMessage({ ...message, content: "" });
+            Keyboard.dismiss();
+        } catch (error) {
+            console.log("error desde enviar mensaje => ", error);
+        }
     }
-
-    const sortMessages = messageContent.sort(function (a: any, b: any) {
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-    })
 
     return (
         <View style={styles.containerMain}>
             <ScrollView>
                 {
-                    sortMessages.map((message: any) => {
+                    messageContent.map((message: any) => {
                         if (message.user_from === currentUserID) {
                             return (
                                 <MessageContainerFrom key={message.id} messageContent={message.content} />

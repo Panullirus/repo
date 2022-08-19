@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Alert, Image } from 'react-native'
 import { ButtonPrimary } from '../components/ButtonPrimary'
 import { ButtonSecondary } from "../components/ButtonSecondary";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { API, Auth, graphqlOperation } from "aws-amplify";
-import { useFocusEffect } from "@react-navigation/native";
-import { CreateUserInput } from "@src/API";
-import { createChatsContainer, createUser } from "@src/graphql/mutations";
+import { Auth } from "aws-amplify";
+import { AuthKit } from "./AuthKit";
 
-//Agregamos navigation para la navegación entre componentes
+// @ts-ignore
 const Login = ({ navigation }) => {
+
+    const authKit = new AuthKit()
 
     //Iniciamos el state y el setStatem
     const [state, setState] = useState({
@@ -66,15 +66,10 @@ const Login = ({ navigation }) => {
             //Se envia la petición de auth para iniciar sesion
             const userData = await Auth.signIn(username, contrasena)
 
-            try {
-                var userID = userData.attributes.sub;
-                AsyncStorage.setItem('@Storage_key', userID)
-            } catch (error) {
-                console.log(error)
-            }
+            authKit.saveUserID(userData.attributes.sub)
 
             //Si la petición es correcta, redirige al contenido
-            navigation.navigate('Lista de contactos')
+            navigation.navigate('Main')
         } catch (err) {
             //Muestra errores por errores de peticiones
             if (err == 'UserNotFoundException: User does not exist.') {

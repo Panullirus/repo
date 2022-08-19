@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { View, Alert, Text, TextInput, StyleSheet, ActivityIndicator } from 'react-native'
-import { Auth, API, graphqlOperation } from 'aws-amplify'
+import React, { useState } from "react";
+import { View, Alert, Text, TextInput, StyleSheet } from 'react-native'
 import { ButtonPrimary } from "../components/ButtonPrimary";
 import { ButtonSecondary } from "../components/ButtonSecondary";
-import { createChatsContainer, createUser } from "@src/graphql/mutations";
-import { CreateUserInput } from "@src/API";
+import { AuthKit } from "./AuthKit";
 
-//Agregamos navigation para la navegación entre componentes
+// @ts-ignore
 const Register = ({ navigation }) => {
+
+    const authKit = new AuthKit();
 
     //Iniciamos el state y el setState
     const [alumno, setAlumnos] = useState({})
@@ -48,26 +48,8 @@ const Register = ({ navigation }) => {
         }
 
         try {
-            //Se hace la petición con los datos esperados
-            const userData = await Auth.signUp({
-                username: username,
-                password: contrasena,
-                attributes: {
-                    name: name
-                }
-            })
 
-            const setChatContainer = (await API.graphql(graphqlOperation(createChatsContainer, {input: {}}))) as any
-
-            const input:CreateUserInput = {
-                id: userData.userSub,
-                userChatUserContainerIDId: setChatContainer.data.createChatsContainer.id,
-                name: name
-            }
-
-            const createChatUser = await API.graphql(graphqlOperation(createUser, {input}))
-
-            console.log(createChatUser)
+            await authKit.signUp(username, contrasena, name);            
 
             //Si la petición es correcta, redirige para confirmar el código de confirmación
             navigation.navigate('Confirmación')
