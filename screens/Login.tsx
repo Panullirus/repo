@@ -6,10 +6,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Auth } from "aws-amplify";
 import { AuthKit } from "./AuthKit";
 
+const authKit = new AuthKit()
+
 // @ts-ignore
 const Login = ({ navigation }) => {
-
-    const authKit = new AuthKit()
 
     //Iniciamos el state y el setStatem
     const [state, setState] = useState({

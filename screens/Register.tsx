@@ -4,10 +4,10 @@ import { ButtonPrimary } from "../components/ButtonPrimary";
 import { ButtonSecondary } from "../components/ButtonSecondary";
 import { AuthKit } from "./AuthKit";
 
+const authKit = new AuthKit();
+
 // @ts-ignore
 const Register = ({ navigation }) => {
-
-    const authKit = new AuthKit();
 
     //Iniciamos el state y el setState
     const [alumno, setAlumnos] = useState({})

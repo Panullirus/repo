@@ -5,10 +5,10 @@ import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChatKit } from "./Chats/ChatKit";
 
+const chatKit = new ChatKit()
+
 // @ts-ignore
 const Home = ({ navigation }) => {
-
-    const chatKit = new ChatKit()
 
     const [currentUserID, setCurrentUserID] = useState<any>();
 
@@ -23,19 +23,19 @@ const Home = ({ navigation }) => {
     
     const [messageList, setMessageList] = useState([])
 
-    useFocusEffect(useCallback(() => {
-        const getMessages = async () => {
-            const messages = await chatKit.getAllMesssages(currentUserID)
-            setMessageList(messages)
-            console.log(messages)
-        }
-        getMessages()
-    } , []));
+    // useFocusEffect(useCallback(() => {
+    //     const getMessages = async () => {
+    //         const messages = await chatKit.getAllMesssages(currentUserID)
+    //         setMessageList(messages)
+    //         console.log(messages)
+    //     }
+    //     getMessages()
+    // } , []));
 
     return (
             <View style={styles.container}>
             <Text>Lista de mensajes</Text>
-            {
+            {/* {
                 messageList.map((item:any, index) => {
                     return(
                         <CardMessage
@@ -45,7 +45,7 @@ const Home = ({ navigation }) => {
                         />
                     );
                 })
-            }
+            } */}
             <TouchableOpacity style={styles.floatingButtom} onPress={() => navigation.navigate("Lista de contactos")}>
                 <Text>Add</Text>
             </TouchableOpacity>

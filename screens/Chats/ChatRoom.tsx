@@ -8,14 +8,14 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { onCreateMessageContent} from '../../src/graphql/subscriptions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ChatKit } from './ChatKit';
+import { RootStackScreenProps } from 'types'
 
-export function ChatRoom() {
+const chatKit = new ChatKit()
 
-    const chatKit = new ChatKit()
 
-    const route = useRoute();
+export function ChatRoom({ navigation, route }: RootStackScreenProps<'chatRoom'>) {
 
-    const userFromListContact: any = route.params;
+    const userValue = route.params;
 
     const [messageContent, setMessageContent] = useState([]);
 
@@ -59,7 +59,7 @@ export function ChatRoom() {
     useFocusEffect(useCallback(() => {
         const fetchData = async () => {
             try {
-                const res = await chatKit.setMessages(userFromListContact)
+                const res = await chatKit.setMessages(userValue)
 
                 setMessageContent(res);
             } catch (error) {
@@ -70,7 +70,7 @@ export function ChatRoom() {
     }, []));
 
     const sendMessageFunction = useCallback(async () => {
-        const getChatRoom = await chatKit.setChatRoom(userFromListContact)
+        const getChatRoom = await chatKit.setChatRoom(userValue)
         await chatKit.sendMessage(getChatRoom.data.listMessageRooms.items[0].id, message.content);
     }, [message]);
 
