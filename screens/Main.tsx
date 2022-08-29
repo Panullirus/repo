@@ -23,29 +23,9 @@ const Home = ({ navigation }) => {
     
     const [messageList, setMessageList] = useState([])
 
-    // useFocusEffect(useCallback(() => {
-    //     const getMessages = async () => {
-    //         const messages = await chatKit.getAllMesssages(currentUserID)
-    //         setMessageList(messages)
-    //         console.log(messages)
-    //     }
-    //     getMessages()
-    // } , []));
-
     return (
             <View style={styles.container}>
             <Text>Lista de mensajes</Text>
-            {/* {
-                messageList.map((item:any, index) => {
-                    return(
-                        <CardMessage
-                            key={index}
-                            onPress={() => chatKit.goToChatRoom(item)}
-                            text={item.id}
-                        />
-                    );
-                })
-            } */}
             <TouchableOpacity style={styles.floatingButtom} onPress={() => navigation.navigate("Lista de contactos")}>
                 <Text>Add</Text>
             </TouchableOpacity>
