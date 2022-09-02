@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { View, Alert, Text, TextInput, StyleSheet, ActivityIndicator } from 'react-native'
-import { Auth } from 'aws-amplify'
+import React, { useState } from "react";
+import { View, Alert, Text, TextInput, StyleSheet } from 'react-native'
 import { ButtonPrimary } from "../components/ButtonPrimary";
 import { ButtonSecondary } from "../components/ButtonSecondary";
+import { AuthKit } from "./AuthKit";
 
-//Agregamos navigation para la navegación entre componentes
+const authKit = new AuthKit();
+
+// @ts-ignore
 const Register = ({ navigation }) => {
 
     //Iniciamos el state y el setState
@@ -46,17 +48,9 @@ const Register = ({ navigation }) => {
         }
 
         try {
-            //Se hace la petición con los datos esperados
-            await Auth.signUp({
-                username: username,
-                password: contrasena,
-                attributes: {
-                    name: name
-                }
-            }).then(data => {
-                console.log(data)
-                setAlumnos(data);
-            })
+
+            await authKit.signUp(username, contrasena, name);            
+
             //Si la petición es correcta, redirige para confirmar el código de confirmación
             navigation.navigate('Confirmación')
         } catch (err) {
@@ -69,7 +63,7 @@ const Register = ({ navigation }) => {
             } else if (err == 'UsernameExistsException: An account with the given email already exists.'){
                 Alert.alert("!Oops¡ Algo salió mal.", "El correo electónico ya está registrado.")
             } else{
-                Alert.alert("!Oops¡ Algo salió mal.", "Revisa tu contraseña.")
+                console.log(err)
             }
         }
     }

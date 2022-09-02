@@ -1,11 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, Alert, Image } from 'react-native'
 import { ButtonPrimary } from '../components/ButtonPrimary'
 import { ButtonSecondary } from "../components/ButtonSecondary";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Auth } from "aws-amplify";
+import { AuthKit } from "./AuthKit";
 
-//Agregamos navigation para la navegación entre componentes
+const authKit = new AuthKit()
+
+// @ts-ignore
 const Login = ({ navigation }) => {
 
     //Iniciamos el state y el setStatem
@@ -19,6 +22,16 @@ const Login = ({ navigation }) => {
     const getSigninData = (email: any, value: any) => {
         setState({ ...state, [email]: value })
     }
+
+    // useFocusEffect(useCallback(() => {
+    //     const fetchCurrentUser = async () => {
+    //         const currentUser = (await API.Auth.currentAuthenticatedUser());
+    //         if(currentUser){
+    //             navigation.navigate("Main");
+    //         }
+    //     }
+    //     fetchCurrentUser();
+    // }, []));
 
     //Si el correo electrónico está registrado pero no confirmado, muestra un alert para confirmarlo
     async function onResendCode(
@@ -51,14 +64,10 @@ const Login = ({ navigation }) => {
 
         try {
             //Se envia la petición de auth para iniciar sesion
-            await Auth.signIn(username, contrasena).then(data => {
-                try {
-                    var useriD = data.attributes.sub;
-                    AsyncStorage.setItem('@Storage_key', useriD)
-                } catch (error) {
-                    console.log(error)
-                }
-            })
+            const userData = await Auth.signIn(username, contrasena)
+
+            authKit.saveUserID(userData.attributes.sub)
+
             //Si la petición es correcta, redirige al contenido
             navigation.navigate('Main')
         } catch (err) {
@@ -78,7 +87,7 @@ const Login = ({ navigation }) => {
                     }
                 ])
             }else{
-                Alert.alert("!Oops¡ Algo salió mal.", "Revisa tus datos he inténtalo de nuevo.")
+                console.log(err)
             }
         }
     }

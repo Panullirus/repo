@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import Amplify from 'aws-amplify'
+import {Amplify} from 'aws-amplify'
 import config from './src/aws-exports'
 import MainStack from './MainStack'
 Amplify.configure(config)
